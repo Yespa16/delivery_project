@@ -27,7 +27,7 @@ cur = conn.cursor()
 # SQL query to create a new database
 new_db_name = "delivery"
 # try:
-  # cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(new_db_name)))
+#   cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(new_db_name)))
 # except:
 #   print("HEY!")
 # else:
