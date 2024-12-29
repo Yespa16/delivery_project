@@ -33,12 +33,19 @@ def set_superuser(engine, user):
 
 db_configs = get_db_configs("db_config.json")
 engine = get_engine_from_configs(db_configs)
-session = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(bind=engine)
+
+def get_db():
+  session = SessionLocal()
+  try:
+    yield session
+  finally:
+    session.close()
 
 
 # Is used during debug
-def main():
+def init_db():
   set_superuser(engine, db_configs["user"])
 
 if __name__ == '__main__':
-   main()
+   init_db()

@@ -15,7 +15,7 @@ class ProductUnit(enum.Enum):
 class Company(Base):
   __tablename__ = "company"
   id            = Column(Integer, primary_key=True, autoincrement=True)
-  name          = Column(String(75), nullable=False)
+  name          = Column(String(75), nullable=False, unique=True)
   workers_cnt   = Column(Integer)
   area          = Column(String(30))
 
