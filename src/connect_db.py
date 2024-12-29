@@ -31,19 +31,14 @@ def set_superuser(engine, user):
     print(f"Superuser privileges granted to '{user}'.")
 
 
-
-def get_session():
-  db_configs = get_db_configs("db_config.json")
-  engine = get_engine_from_configs(db_configs)
-  set_superuser(engine, db_configs["user"])
-  session = sessionmaker(bind=engine)
-  return session
-
+db_configs = get_db_configs("db_config.json")
+engine = get_engine_from_configs(db_configs)
+session = sessionmaker(bind=engine)
 
 
 # Is used during debug
 def main():
-  get_session()
+  set_superuser(engine, db_configs["user"])
 
 if __name__ == '__main__':
    main()
