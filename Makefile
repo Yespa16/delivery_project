@@ -2,7 +2,7 @@ DEBUG ?= 1
 
 SOURCES_FOLDER := src
 CREATE_DB_FILE = $(SOURCES_FOLDER)/connect_db.py
-VIEWS_FILE 		 = $(SOURCES_FOLDER)/views.py
+VIEWS_FILE 		 = $(SOURCES_FOLDER)/api/views.py
 
 
 .DEFAULT_GOAL := run_api
