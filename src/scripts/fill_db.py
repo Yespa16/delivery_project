@@ -1,7 +1,7 @@
 import csv
 import requests
 
-API_URL = "http://127.0.0.1:8000/company/"
+API_URL = "http://127.0.0.1:8000"
 
 COMPANIES_CSV   = "companies.csv"
 PRODUCTS_CSV    = "products.csv"
@@ -16,21 +16,21 @@ def fill_companies_from_csv():
           "workers_cnt": int(row["workers_cnt"]),
           "area": row["area"],
       }
-      response = requests.post(API_URL, json=company)
+      response = requests.post(f"{API_URL}/company/", json=company)
       print(f"{company['name']}: {response.status_code}")
 
 
 def fill_products_from_csv():
-  with open(DELIVERIES_CSV, mode="r") as file:
+  with open(PRODUCTS_CSV, mode="r") as file:
     reader = csv.DictReader(file)
     for row in reader:
       product = {
           "name": row["name"],
           "expr_date": row["expr_date"],
           "cost": float(row["cost"]),
-          "unit": row["unit"],
+          "unit": row["unit"]
       }
-      response = requests.post(API_URL, json=product)
+      response = requests.post(f"{API_URL}/product/", json=product)
       print(f"{product['name']}: {response.status_code}")
 
 
@@ -41,16 +41,16 @@ def fill_deliveries_from_csv():
       delivery = {
           "price": float(row["price"]),
           "date": row["date"],
-          "volume": int(row["volume"]),
+          "volume": float(row["volume"]),
           "company_id": int(row["company_id"]),
           "product_id": int(row["product_id"]),
       }
-      response = requests.post(API_URL, json=delivery)
+      response = requests.post(f"{API_URL}/delivery/", json=delivery)
       print(f"Delivery for company_id {delivery['company_id']} and product_id {delivery['product_id']}: {response.status_code}")
 
 
 if __name__ == "__main__":
-  # fill_companies_from_csv()
-  # fill_products_from_csv()
-  # fill_deliveries_from_csv()
+  fill_companies_from_csv()
+  fill_products_from_csv()
+  fill_deliveries_from_csv()
   print("The DB was filled")

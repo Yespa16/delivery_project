@@ -82,13 +82,17 @@ def sort(field, order):
 
 
 if __name__ == '__main__':
-  print("Doing SELECT query")
-  print(select("Macun"))
-  print("Doing JOIN query")
-  print(join("Google2", "Macun"))
+  print("Starting SELECT query")
+  print(select("Product 2"))
+  
+  print("Starting JOIN query")
+  print(join("Company2", "Product 2"))
+  
   print("Starting UPDATE query")
   print(update())
+
   print("Starting GROUP BY query")
   print(group_by())
+  
   print("Starting SORT query")
   print(sort("cost", "asc"))
