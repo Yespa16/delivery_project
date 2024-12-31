@@ -1,10 +1,8 @@
 import csv
 import requests
 
-# API endpoint
 API_URL = "http://127.0.0.1:8000/company/"
 
-# Path to the CSV file
 COMPANIES_CSV   = "companies.csv"
 PRODUCTS_CSV    = "products.csv"
 DELIVERIES_CSV  = "deliveries.csv"
@@ -28,7 +26,7 @@ def fill_products_from_csv():
     for row in reader:
       product = {
           "name": row["name"],
-          "expr_date": row["expr_date"],  # Ensure date format is YYYY-MM-DD
+          "expr_date": row["expr_date"],
           "cost": float(row["cost"]),
           "unit": row["unit"],
       }
@@ -42,7 +40,7 @@ def fill_deliveries_from_csv():
     for row in reader:
       delivery = {
           "price": float(row["price"]),
-          "date": row["date"],  # Ensure the date format is YYYY-MM-DD
+          "date": row["date"],
           "volume": int(row["volume"]),
           "company_id": int(row["company_id"]),
           "product_id": int(row["product_id"]),

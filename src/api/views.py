@@ -2,9 +2,10 @@ from typing import Annotated
 from models import Base, Company, Product, Delivery
 from api_models import CompanyBase, ProductBase, DeliveryBase
 from connect_db import engine, get_db, init_db
+from sqlalchemy import asc, desc, func
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, Depends, HTTPException
-
+from fastapi import FastAPI, Depends, HTTPException, Query
+import math
 
 
 app = FastAPI()
@@ -46,6 +47,25 @@ def get_company_by_name(company_name: str, db: db_dependency):
   if not company:
     raise HTTPException(status_code=404, detail=f"Company {company_name} not found")
   return company
+
+
+@app.get("/company/grouped/")
+def get_grouped_companies(db: Session= Depends(get_db)):
+    
+
+    grouped_data = db.query(
+    Company.area.label("group"),
+      func.count(Company.id).label("count"),
+      func.avg(Company.workers_cnt).label("average_workers_count")
+    ).group_by(Company.area).all()
+    if not grouped_data:
+        raise HTTPException(status_code=404, detail="No companies found")
+    result = [{"group": area, "count": count, "average_workers_count": math.floor(avg_workers_count)  }
+                  for area, count, avg_workers_count in grouped_data]
+        
+    return result
+
+
 
 
 @app.put("/company/{company_id}", response_model=CompanyBase)
@@ -95,6 +115,19 @@ def get_products_by_name(product_name: str, db: db_dependency):
   if not product:
     raise HTTPException(status_code=404, detail=f"Products named {product_name} not found")
   return product
+
+
+@app.get("/products/")
+def get_all_products(
+  sort_by: str = Query("id", regex="^(id|name|cost|expr_date)$"),
+  order: str = Query("asc", regex="^(asc|desc)$"),
+  db: Session = Depends(get_db)
+  ):
+  order_by_clause = asc if order == "asc" else desc
+  products = db.query(Product).order_by(order_by_clause(getattr(Product, sort_by))).all()
+  if not products:
+    raise HTTPException(status_code=404, detail=f"No products available in DB")
+  return products
 
 
 @app.put("/product/{product_id}", response_model=ProductBase)
