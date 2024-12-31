@@ -1,5 +1,6 @@
 import csv
 import requests
+import json
 
 API_URL = "http://127.0.0.1:8000"
 
@@ -24,11 +25,17 @@ def fill_products_from_csv():
   with open(PRODUCTS_CSV, mode="r") as file:
     reader = csv.DictReader(file)
     for row in reader:
+      try:
+        description = json.loads(row["description"])  # Convert the string to a dictionary
+      except json.JSONDecodeError:
+        description = {}  # If parsing fails, set to empty dict or handle accordingly
+        
       product = {
           "name": row["name"],
           "expr_date": row["expr_date"],
           "cost": float(row["cost"]),
-          "unit": row["unit"]
+          "unit": row["unit"],
+          "description": description
       }
       response = requests.post(f"{API_URL}/product/", json=product)
       print(f"{product['name']}: {response.status_code}")
@@ -43,7 +50,7 @@ def fill_deliveries_from_csv():
           "date": row["date"],
           "volume": float(row["volume"]),
           "company_id": int(row["company_id"]),
-          "product_id": int(row["product_id"]),
+          "product_id": int(row["product_id"])
       }
       response = requests.post(f"{API_URL}/delivery/", json=delivery)
       print(f"Delivery for company_id {delivery['company_id']} and product_id {delivery['product_id']}: {response.status_code}")

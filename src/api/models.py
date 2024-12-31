@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Date, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.dialects.postgresql import JSONB
 import enum
 # from psql import Base, db, session
 
@@ -27,6 +28,7 @@ class Product(Base):
   expr_date     = Column(Date)
   cost          = Column(Float)
   unit          = Column(Enum(ProductUnit))
+  description   = Column(JSONB)
 
 
 class Delivery(Base):

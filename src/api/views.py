@@ -2,7 +2,7 @@ from typing import Annotated
 from models import Base, Company, Product, Delivery
 from api_models import CompanyBase, ProductBase, DeliveryBase
 from connect_db import engine, get_db, init_db
-from sqlalchemy import asc, desc, func
+from sqlalchemy import asc, desc, func, text
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, HTTPException, Query
 import math
@@ -16,6 +16,9 @@ db_dependency = Annotated[Session, Depends(get_db)]
 def startup_event():
   init_db()
   Base.metadata.create_all(engine)
+  with engine.connect() as connection:
+    connection.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
+    connection.execute(text("CREATE INDEX idx_data_trgm ON Product USING gin (description jsonb_path_ops);"))
 
 
 @app.get("/")
@@ -94,7 +97,7 @@ def delete_item(company_id: int, db: db_dependency):
 
 @app.post("/product/", response_model=dict)
 def create_product(product: ProductBase, db: db_dependency):
-  db_product = Product(name=product.name, expr_date=product.expr_date, cost=product.cost, unit=product.unit)
+  db_product = Product(name=product.name, expr_date=product.expr_date, cost=product.cost, unit=product.unit, description=product.description)
   db.add(db_product)
   db.commit()
   db.refresh(db_product)
@@ -115,6 +118,14 @@ def get_products_by_name(product_name: str, db: db_dependency):
   if not product:
     raise HTTPException(status_code=404, detail=f"Products named {product_name} not found")
   return product
+
+
+@app.get("/product/search_desc/")
+def search_product_description(search_term: str, db: Session = Depends(get_db)):
+    results = db.query(Product).filter(
+        func.jsonb_extract_path_text(Product.description, "additional_desc").op("~")(search_term)
+    ).all()
+    return results
 
 
 @app.get("/products/")
