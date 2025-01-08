@@ -1,15 +1,16 @@
 DEBUG ?= 1
 
-SOURCES_FOLDER := src
-CONNECT_DB_FILE = $(SOURCES_FOLDER)/api/connect_db.py
-VIEWS_FILE 		 = $(SOURCES_FOLDER)/api/views.py
-
+SOURCES_FOLDER := ./src
 
 .DEFAULT_GOAL := run_api
 
 
-connect_db:
-	python3 $(CONNECT_DB_FILE) ;
-
 run_api:
-	fastapi dev $(VIEWS_FILE)
+	@fastapi dev $(SOURCES_FOLDER)/api/views.py
+
+
+fill_db:
+	python3 $(SOURCES_FOLDER)/scripts/fill_db.py $(SOURCES_FOLDER)/scripts/
+
+query:
+	python3 $(SOURCES_FOLDER)/scripts/query.py

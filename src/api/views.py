@@ -2,6 +2,7 @@ from typing import Annotated
 from models import Base, Company, Product, Delivery
 from api_models import CompanyBase, ProductBase, DeliveryBase
 from connect_db import engine, get_db, init_db
+from utils import column_exists, index_exists
 from sqlalchemy import asc, desc, func, text
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, HTTPException, Query
@@ -17,8 +18,12 @@ def startup_event():
   init_db()
   Base.metadata.create_all(engine)
   with engine.connect() as connection:
-    connection.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
-    connection.execute(text("CREATE INDEX idx_data_trgm ON Product USING gin (description jsonb_path_ops);"))
+    with connection.begin() as transaction:
+      connection.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
+      if not column_exists("product", "expired"):
+        connection.execute(text("ALTER TABLE Product ADD COLUMN expired BOOL;"))
+      if not index_exists("product", "idx_data_trgm"):
+        connection.execute(text("CREATE INDEX idx_data_trgm ON Product USING gin (description jsonb_path_ops);"))
 
 
 @app.get("/")
@@ -150,6 +155,7 @@ def update_product_by_id(product_id: int, product: ProductBase, db: db_dependenc
   db_product.expr_date = product.expr_date
   db_product.cost = product.cost
   db_product.unit = product.unit
+  db_product.description = product.description
   db.commit()
   return db_product
 

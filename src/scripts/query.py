@@ -7,7 +7,6 @@ API_URL = "http://127.0.0.1:8000/"
 def select(product_name):
   url = f"{API_URL}product/?product_name={product_name}"
   response = requests.get(url)
-  print(f"Api request returned status {response.status_code}")
   if response.status_code != 200:
     return
   products = response.json()
@@ -40,7 +39,7 @@ def update():
   products_url = f"{API_URL}products/"
   products_response = requests.get(products_url)
   if products_response.status_code != 200:
-    print("Products API call failed")
+    print(f"Products API call failed, status code: {products_response.status_code}")
     return
   products = products_response.json()
   
@@ -53,12 +52,12 @@ def update():
         "name": product["name"],
         "expr_date": product["expr_date"],
         "cost": product["cost"] * 0.5,
-        "unit": product["unit"]
+        "unit": product["unit"],
+        "description": {"additional_desc":"This item was updated"}
       }
       update_response = requests.put(update_url, json=payload)
       if update_response.status_code != 200:
-        print("Update API call failed")
-        return
+        print(f"Update API call failed, status: {update_response.status_code}")
       return update_response.json()
 
 
